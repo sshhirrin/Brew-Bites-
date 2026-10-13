@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brew & Bites Cafe</title>
+<style>
+:root{--bg:#fff0f5;--bg2:#ffe3ee;--card:#fff;--ink:#4a0d2b;--muted:#8a4a66;--pink:#d6336c;--dark:#9c1448;--deep:#5c0a2c;--line:#f3c9da;--ok:#2fb36d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{color-scheme:light}
+:root[data-theme="dark"] .btn{color:#2a0a1a}
+:root[data-theme="dark"]{--bg:#2a0a1a;--bg2:#3a0f25;--card:#3d1428;--ink:#ffe3ee;--muted:#e3a6c0;--pink:#f06595;--dark:#ff8fb5;--deep:#1e0612;--line:#6b2447;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif}
+button,input,select{font:inherit}
+.sans{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+/* gate */
+#gate,#lg{min-height:100vh;padding:28px 18px;background:var(--bg2);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:980px;margin:0 auto}
+#gate h1,#lg h1{margin:0;font-size:30px}.sub{color:var(--muted);font-size:14px;margin:2px 0 18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;display:grid;grid-template-columns:1.1fr 1fr;gap:32px}
+@media(max-width:700px){.panel{grid-template-columns:1fr}}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--pink);border-color:transparent}
+.btn{background:var(--dark);color:#fff;border:0;padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer}
+.btn.alt{background:var(--pink)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:14px;color:var(--muted)}
+.dot{width:22px;height:22px;border-radius:50%;background:var(--line);color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
+.chk.ok .dot{background:var(--ok)}.chk.ok{color:var(--ink)}
+.drop{display:block;border:2px dashed var(--pink);border-radius:12px;padding:16px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer;margin:0;font-weight:500;background:var(--bg)}
+.drop.ok{border-style:solid;border-color:var(--ok);color:var(--ink)}
+#pv{display:flex;align-items:center;gap:12px;margin-top:10px;font-size:13px}
+#pv img{width:72px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.spin{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--pink);border-radius:50%;animation:sp .8s linear infinite;display:inline-block;vertical-align:-3px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{color:#d6204f;font-size:12px;min-height:14px;margin-top:3px}
+.lnk{color:var(--pink);font-weight:700;cursor:pointer;text-decoration:underline}
+.perk{margin-top:20px;padding:14px;border-radius:12px;background:var(--bg2);font-size:13px;color:var(--muted)}
+/* confirm modal */
+.modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;padding:20px;z-index:50;font-family:system-ui,sans-serif}
+.modal.on{display:grid}
+.mbox{background:var(--card);border-radius:18px;padding:26px;max-width:400px;width:100%;border:1px solid var(--line)}
+.mbox h3{margin:0 0 10px}.mbox dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:0 0 18px}
+.mbox dt{color:var(--muted)}.mbox dd{margin:0;font-weight:600;word-break:break-all}
+/* site */
+#site{display:none}
+nav{background:var(--deep);color:#fff;display:flex;align-items:center;gap:20px;padding:12px 24px;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;flex-wrap:wrap}
+nav .logo{font-size:20px;font-weight:700;margin-right:6px}nav .logo b{color:#ff8fb5}
+nav a{color:#fff;text-decoration:none;font-size:13px;font-family:system-ui,sans-serif}
+.navl{display:flex;gap:18px}.navr{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tg.out{background:#ff8fb5;color:#5c0a2c;border-color:#ff8fb5;font-weight:700}
+@media(max-width:700px){nav{padding:10px 14px;gap:8px 12px}nav .logo{order:1}.navr{order:2}.navl{order:3;width:100%;overflow-x:auto;gap:20px}.api{order:4;width:100%;font-size:10px}}
+.tabs{display:flex;gap:8px;margin-bottom:16px}.tab{border:1px solid var(--pink);background:var(--card);color:var(--dark);padding:7px 18px;border-radius:99px;font:700 13px system-ui,sans-serif;cursor:pointer}.tab.on{background:var(--pink);color:#fff}
+.api{font:12px ui-monospace,Menlo,monospace;display:flex;align-items:center;gap:8px}
+.api i{width:8px;height:8px;border-radius:50%;background:#37e08f;display:inline-block}
+.tg{background:none;border:1px solid #ffffff55;color:#fff;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px}
+.badge{background:#ff8fb5;color:var(--deep);padding:3px 10px;border-radius:99px;font:700 11px system-ui,sans-serif}
+.hero{background:linear-gradient(135deg,var(--bg2),var(--bg));padding:56px 24px}
+.hero .wrap{display:grid;grid-template-columns:1fr 360px;gap:30px;align-items:center}
+@media(max-width:800px){.hero .wrap{grid-template-columns:1fr}}
+.eyebrow{font:11px ui-monospace,Menlo,monospace;letter-spacing:.2em;color:var(--pink);text-transform:uppercase}
+.hero h1{font-size:44px;margin:14px 0;color:var(--dark)}
+.hero p{color:var(--muted);font-size:15px}
+.seat{background:var(--card);border-radius:18px;padding:26px;box-shadow:0 12px 40px #d6336c26;text-align:center}
+.seat .n{font-size:56px;color:var(--pink);line-height:1}
+.seat .row{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:11px 0;font:13px system-ui,sans-serif;text-align:left}
+.seat .row b{text-align:right}
+main{padding:36px 24px 60px}
+h2{font-size:24px;margin:0 0 16px;color:var(--dark)}
+.cats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.cat{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:99px;cursor:pointer;font:12px system-ui,sans-serif}
+.cat.on{background:var(--pink);color:#fff;border-color:var(--pink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:34px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.item small{font:10px ui-monospace,Menlo,monospace;letter-spacing:.15em;color:var(--pink);text-transform:uppercase}
+.item h4{margin:8px 0;font-size:17px}.item .p{font:700 18px system-ui,sans-serif}
+.item .p s{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+.item .btn{padding:6px 12px;font-size:12px;margin-top:10px;background:var(--pink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:34px}
+@media(max-width:800px){.two{grid-template-columns:1fr}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;font-family:system-ui,sans-serif}
+.box h2{font-family:Georgia,serif}
+.sum{background:var(--bg2);border-radius:10px;padding:12px;margin-top:14px;font-size:13px}
+.sum div{display:flex;justify-content:space-between;margin:3px 0}
+.sum .t{font-weight:700;font-size:15px;border-top:1px dashed var(--line);padding-top:6px;margin-top:6px}
+.ord{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.st{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--bg2);color:var(--dark)}
+.st.Ready{background:#d4f5e3;color:#14703f}
+.rev{border-left:3px solid var(--pink);padding:6px 12px;margin:10px 0;font-size:13px}
+.stars{color:var(--pink);letter-spacing:2px}
+.log{background:var(--deep);color:#ffd3e3;border-radius:12px;padding:14px;font:12px/1.7 ui-monospace,Menlo,monospace;max-height:220px;overflow:auto}
+.empty{color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--deep);color:#fff;padding:10px 18px;border-radius:99px;font:13px system-ui,sans-serif;display:none;z-index:60}
+
+.pg{display:none}.pg.on{display:block}
+.navl a{white-space:nowrap}.navl a.act{border-bottom:2px solid #ff8fb5;padding-bottom:2px}
+.cnt{background:#ff8fb5;color:#5c0a2c;border-radius:99px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:5px}
+.sub2{color:var(--muted);font:13px system-ui,sans-serif;margin:-8px 0 16px}
+.bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}.bar input{flex:1;min-width:200px}
+.seg{display:flex;gap:6px}.seg button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:10px;cursor:pointer;font:12px system-ui,sans-serif}.seg button.on{background:var(--pink);color:#fff;border-color:var(--pink)}
+.heart{float:right;background:none;border:0;font-size:18px;cursor:pointer;padding:0}
+.vd{display:inline-block;width:11px;height:11px;border:1.5px solid;border-radius:2px;margin-right:6px;position:relative;vertical-align:-1px}.vd::after{content:'';position:absolute;inset:2px;border-radius:50%;background:currentColor}.vd.v{color:#2fb36d}.vd.n{color:#d6204f}
+.desc{font:12px/1.5 system-ui,sans-serif;color:var(--muted);margin:2px 0 6px}
+.item.combo{border:1.5px dashed var(--pink)}
+h3.sec{margin:6px 0 12px;color:var(--dark);font-size:18px}
+.cl{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.qty{display:flex;align-items:center;gap:10px}.qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--pink);background:var(--card);color:var(--dark);cursor:pointer;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;font-family:system-ui,sans-serif}.stat b{display:block;font-size:22px;color:var(--pink)}.stat span{font-size:12px;color:var(--muted)}
+.ocard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;font:13px/1.6 system-ui,sans-serif}
+.ocard .h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+details summary{cursor:pointer;color:var(--pink);font-weight:700;margin-top:8px}
+.zone{cursor:pointer;text-align:center}.zone.sel{border:2px solid var(--pink);background:var(--bg2)}
+.cat:disabled{opacity:.4;cursor:not-allowed;text-decoration:line-through}
+.cmsg{font:12px system-ui,sans-serif;color:var(--pink);min-height:16px;margin:6px 0}
+.sm{padding:5px 12px!important;font-size:12px!important;margin:0!important}
+</style></head><body>
+
+<!-- REGISTRATION GATE -->
+<section id="gate"><div class="wrap">
+<div class="tabs"><button class="tab" data-p="login">Login</button><button class="tab on" data-p="reg">Register</button></div>
+<h1>Student Registration</h1><div class="sub">Verify you're a student to unlock 15% off at Brew &amp; Bites. Already registered? <a class="lnk" id="toLogin">Login</a></div>
+<div class="panel">
+<form id="rf" onsubmit="return false" novalidate>
+<label for="fn">Full Name</label><input id="fn" autocomplete="name"><div class="err" id="e1"></div>
+<label for="em">Email Address</label><input id="em" type="email" placeholder="you@gmail.com" autocomplete="email"><div class="err" id="e2"></div>
+<label for="mb">Mobile Number</label><input id="mb" inputmode="numeric" maxlength="10" placeholder="10-digit number" autocomplete="tel"><div class="err" id="e3"></div>
+<label for="cr">Course</label>
+<select id="cr"><option value="">Select your course</option><option>B.Tech / B.E.</option><option>BCA / MCA</option><option>B.Com / M.Com</option><option>BBA / MBA</option><option>B.Sc / M.Sc</option><option>BA / MA</option><option>Medical / Pharmacy</option><option>Other</option></select><div class="err" id="e4"></div>
+<label for="id">College ID Number</label><input id="id" placeholder="e.g. TY-2024-0456"><div class="err" id="e5"></div>
+<label for="idf">Upload Student ID Card</label>
+<label class="drop" id="drop" for="idf"><input id="idf" type="file" accept="image/png,image/jpeg,image/webp,application/pdf" hidden>
+<span id="dt">📎 Tap to upload your student ID (JPG, PNG or PDF, max 5 MB)</span></label>
+<div id="pv"></div><div class="err" id="e6"></div>
+<div style="margin-top:20px"><button class="btn" id="sb">Submit</button></div>
+</form>
+<div>
+<h3 style="margin:14px 0 6px">Validation</h3>
+<div class="chk" id="c1"><span class="dot">✓</span>Required fields checked</div>
+<div class="chk" id="c2"><span class="dot">✓</span>Email format checked</div>
+<div class="chk" id="c3"><span class="dot">✓</span>Mobile format checked</div>
+<div class="chk" id="c5"><span class="dot">✓</span>Student ID uploaded &amp; verified</div>
+<div class="chk" id="c4"><span class="dot">✓</span>Ready to submit</div>
+<div class="perk">🎓 Verified students get <b>15% off every order</b>, free Wi-Fi in the study corner and a free brownie on every 10th order.</div>
+</div></div></div></section>
+
+<!-- LOGIN -->
+<section id="lg" style="display:none"><div class="wrap">
+<div class="tabs"><button class="tab on" data-p="login">Login</button><button class="tab" data-p="reg">Register</button></div>
+<h1>Student Login</h1><div class="sub">Welcome back! New here? <a class="lnk" id="toReg">Register with your student ID</a></div>
+<div class="panel">
+<form id="lf" onsubmit="return false" novalidate>
+<label for="lem">Email Address</label><input id="lem" type="email" placeholder="you@gmail.com" autocomplete="email">
+<label for="lmb">Mobile Number</label><input id="lmb" inputmode="numeric" maxlength="10" placeholder="10-digit number you registered with" autocomplete="tel">
+<div class="err" id="le" style="margin-top:10px"></div>
+<div style="margin-top:14px"><button class="btn" id="lbtn">Login</button></div>
+</form>
+<div><h3 style="margin:14px 0 6px">Why login?</h3>
+<div class="chk ok"><span class="dot">✓</span>Your student verification is remembered</div>
+<div class="chk ok"><span class="dot">✓</span>15% student discount applied instantly</div>
+<div class="chk ok"><span class="dot">✓</span>No need to upload your ID again</div>
+<div class="perk">🎓 Use the same email and mobile number you registered with on this device.</div></div>
+</div></div></section>
+
+<div class="modal" id="cm"><div class="mbox">
+<h3>Confirm your details</h3>
+<dl><dt>Name</dt><dd id="m1"></dd><dt>Email</dt><dd id="m2"></dd><dt>Mobile</dt><dd id="m3"></dd><dt>Course</dt><dd id="m4"></dd><dt>College ID</dt><dd id="m5"></dd><dt>ID card</dt><dd id="m6"></dd></dl>
+<div style="display:flex;gap:10px"><button class="btn alt" id="ok">Confirm &amp; Enter</button><button class="btn" style="background:var(--muted)" id="ed">Edit</button></div>
+</div></div>
+
+<!-- SITE -->
+<div id="site">
+<nav><span class="logo">Brew<b>&amp;</b>Bites</span>
+<div class="navl"><a href="#" data-pg="home">Home</a><a href="#" data-pg="menu">Menu</a><a href="#" data-pg="cart">Cart<span class="cnt" id="cc" style="display:none">0</span></a><a href="#" data-pg="orders">My Orders</a><a href="#" data-pg="study">Study Corner</a><a href="#" data-pg="events">Events</a><a href="#" data-pg="favs">Favourites</a><a href="#" data-pg="home" data-a="reviews">Reviews</a><a href="#" data-pg="home" data-a="apilog">API Log</a></div>
+<div class="navr"><span class="badge" id="sbadge">🎓 Student</span><button class="tg" id="tg">◐ Theme</button><button class="tg out" id="lgout">⎋ Logout</button></div>
+<span class="api"><i></i>API connected — localhost:3000</span></nav>
+
+<div id="pg-home" class="pg on">
+<header class="hero"><div class="wrap"><div>
+<div class="eyebrow">Cafe · Mumbai</div><h1>Brew &amp; Bites Cafe</h1>
+<p>Fresh coffee, warm snacks and a quiet corner to study.<br><span id="hi"></span></p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="go('order')">Place an order</button><button class="btn alt" id="bk">Book a seat</button></div></div>
+<div class="seat"><div class="n sans" id="seats">40</div><div class="sans" style="color:var(--muted);margin-bottom:14px">seats available</div>
+<div class="row"><span>Timings</span><b>8:00 AM - 10:00 PM</b></div>
+<div class="row"><span>Phone</span><b>+91 90000 00000</b></div>
+<div class="row"><span>Menu items</span><b id="mc">0</b></div>
+<div class="row"><span>Your discount</span><b style="color:var(--pink)">15% OFF</b></div></div>
+</div></header>
+
+<main><div class="wrap">
+<h2 id="menu">Our Menu</h2>
+<div class="cats" id="cats"></div>
+<div class="grid" id="mg"></div>
+
+<div class="two" id="order">
+<div class="box"><h2>Place an Order</h2>
+<label for="oname">Your name</label><input id="oname">
+<label for="oi">Item</label><select id="oi"></select>
+<label for="oq">Quantity</label><input id="oq" type="number" min="1" max="10" value="1">
+<label for="on">Table / Note</label><input id="on" placeholder="Table 12, less sugar…">
+<div class="sum" id="sum"></div>
+<button class="btn" style="margin-top:14px" id="po">Place order</button></div>
+<div class="box"><h2>Live Orders</h2><div id="lo"><div class="empty">No orders yet. Place one!</div></div>
+<div class="sum" style="margin-top:14px">🎁 Loyalty: <b id="lp">0</b>/10 orders toward a free brownie</div></div>
+</div>
+
+<div class="two" id="reviews">
+<div class="box"><h2>Reviews</h2><div id="rl"></div></div>
+<div class="box"><h2>Leave a Review</h2>
+<label for="rn">Name</label><input id="rn">
+<label for="rs">Rating</label><select id="rs"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option></select>
+<label for="rt">Comment</label><input id="rt" placeholder="How was it?">
+<button class="btn alt" style="margin-top:14px" id="pr">Post review</button></div>
+</div>
+
+<h2 id="apilog">API Log</h2><div class="log" id="log"></div>
+</div></main></div>
+
+<div class="pg" id="pg-menu"><main><div class="wrap">
+<h2>Full Menu</h2><div class="sub2"><span id="mn"></span> · student prices already applied</div>
+<div class="bar"><input id="ms" placeholder="🔍 Search coffee, pasta, shake…"><div class="seg" id="vseg"><button data-vf="all">All</button><button data-vf="v">🟢 Veg</button><button data-vf="n">🔴 Non-veg</button></div></div>
+<div class="cats" id="mcats"></div>
+<h3 class="sec">🎁 Combo Deals</h3><div class="grid" id="combos"></div>
+<h3 class="sec">All Items</h3><div class="grid" id="mg2"></div>
+</div></main></div>
+
+<div class="pg" id="pg-cart"><main><div class="wrap"><div class="two">
+<div class="box" id="cl"></div>
+<div class="box"><h2>Checkout</h2>
+<label for="cpn">Coupon code</label>
+<div style="display:flex;gap:8px"><input id="cpn" placeholder="Enter code"><button class="btn alt" id="capply" type="button">Apply</button></div>
+<div class="cmsg" id="cmsg"></div>
+<div class="cats"><button class="cat" data-cp="STUDY10">STUDY10</button><button class="cat" data-cp="EXAMWEEK">EXAMWEEK</button><button class="cat" data-cp="FIRSTBREW">FIRSTBREW</button></div>
+<div class="desc">STUDY10: extra 10% off · EXAMWEEK: ₹50 off above ₹300 · FIRSTBREW: ₹40 off your first order</div>
+<label>Add a tip</label><div class="cats" id="tipc"></div>
+<label for="cnote">Table / special request</label><input id="cnote" placeholder="Table 12, less sugar, extra cheese…">
+<div class="sum" id="cs"></div>
+<button class="btn" style="margin-top:14px;width:100%" id="cplace" type="button">Place order</button></div>
+</div></div></main></div>
+
+<div class="pg" id="pg-orders"><main><div class="wrap">
+<h2>My Orders</h2><div class="sub2">Order history, live timers and bills</div>
+<div class="stats" id="os"></div><div id="ol"></div>
+</div></main></div>
+
+<div class="pg" id="pg-study"><main><div class="wrap">
+<h2>Study Corner</h2><div class="sub2">Free Wi-Fi and charging points for verified students 🎓</div>
+<div class="two"><div>
+<h3 class="sec">1. Choose a zone</h3><div class="grid" id="zn" style="margin-bottom:18px"></div>
+<h3 class="sec">2. Pick a day and time slot</h3><div class="seg" id="dseg" style="margin-bottom:12px"></div>
+<div class="cats" id="sl"></div><div id="gsw"></div>
+<button class="btn" style="margin-top:14px" id="sbook" type="button">Book this spot</button></div>
+<div class="box"><h2>My Bookings</h2><div id="mb2"></div></div></div>
+</div></main></div>
+
+<div class="pg" id="pg-events"><main><div class="wrap">
+<h2>Events at Brew &amp; Bites</h2><div class="sub2">RSVP to save your spot. Student price applies to paid events.</div>
+<div class="grid" id="el"></div>
+</div></main></div>
+
+<div class="pg" id="pg-favs"><main><div class="wrap">
+<h2>My Favourites</h2><div class="sub2">Tap ❤️ on any menu item to save it here</div>
+<div class="grid" id="fl"></div>
+</div></main></div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=i=>document.getElementById(i);
+let student=null,cat='All',seats=40,orders=[],loyalty=0,nid=100;
+const MENU=[
+{id:1,cat:'Coffee',name:'Cappuccino',price:120},{id:2,cat:'Coffee',name:'Cold Coffee',price:140},
+{id:3,cat:'Snacks',name:'Veg Grilled Sandwich',price:110},{id:4,cat:'Dessert',name:'Chocolate Brownie',price:90},
+{id:5,cat:'Chai',name:'Masala Chai',price:50},{id:6,cat:'Snacks',name:'Cheese Maggi',price:80},
+{id:7,cat:'Coffee',name:'Rose Latte',price:150},{id:8,cat:'Snacks',name:'Vada Pav Slider',price:70},
+{id:9,cat:'Dessert',name:'Strawberry Cheesecake',price:160},{id:10,cat:'Chai',name:'Kulhad Elaichi Chai',price:60},{id:11,cat:'Coffee',name:'Espresso Shot',price:90},{id:12,cat:'Coffee',name:'Caramel Macchiato',price:170},{id:13,cat:'Coffee',name:'Filter Coffee',price:60},{id:14,cat:'Coffee',name:'Hazelnut Latte',price:160},{id:15,cat:'Coffee',name:'Iced Americano',price:130},{id:16,cat:'Chai',name:'Ginger Chai',price:50},{id:17,cat:'Chai',name:'Irani Chai',price:70},{id:18,cat:'Chai',name:'Pink Kashmiri Chai',price:90},{id:19,cat:'Breakfast',name:'Poha',price:60},{id:20,cat:'Breakfast',name:'Masala Omelette Pav',price:90},{id:21,cat:'Breakfast',name:'Aloo Paratha with Curd',price:110},{id:22,cat:'Breakfast',name:'Idli Sambar',price:80},{id:23,cat:'Breakfast',name:'Avocado Toast',price:150},{id:24,cat:'Snacks',name:'Samosa Chaat',price:70},{id:25,cat:'Snacks',name:'Peri Peri Fries',price:100},{id:26,cat:'Snacks',name:'Paneer Tikka Roll',price:130},{id:27,cat:'Snacks',name:'Bombay Masala Sandwich',price:90},{id:28,cat:'Snacks',name:'Nachos with Cheese Dip',price:140},{id:29,cat:'Snacks',name:'Corn Cheese Toast',price:100},{id:30,cat:'Snacks',name:'Veg Puff',price:40},{id:31,cat:'Meals',name:'Veg Burger',price:120},{id:32,cat:'Meals',name:'Chicken Club Sandwich',price:170},{id:33,cat:'Meals',name:'White Sauce Pasta',price:160},{id:34,cat:'Meals',name:'Red Sauce Pasta',price:150},{id:35,cat:'Meals',name:'Margherita Pizza',price:200},{id:36,cat:'Meals',name:'Veg Biryani Bowl',price:150},{id:37,cat:'Meals',name:'Paneer Wrap',price:140},{id:38,cat:'Meals',name:'Chicken Wrap',price:160},{id:39,cat:'Shakes & Drinks',name:'Oreo Shake',price:140},{id:40,cat:'Shakes & Drinks',name:'Mango Shake',price:120},{id:41,cat:'Shakes & Drinks',name:'Strawberry Smoothie',price:130},{id:42,cat:'Shakes & Drinks',name:'Virgin Mojito',price:110},{id:43,cat:'Shakes & Drinks',name:'Fresh Lime Soda',price:60},{id:44,cat:'Shakes & Drinks',name:'Pink Guava Cooler',price:100},{id:45,cat:'Shakes & Drinks',name:'Peanut Butter Banana Shake',price:150},{id:46,cat:'Dessert',name:'Waffle with Nutella',price:140},{id:47,cat:'Dessert',name:'Glazed Donut',price:70},{id:48,cat:'Dessert',name:'Tiramisu Cup',price:170},{id:49,cat:'Dessert',name:'Gulab Jamun Sundae',price:120},{id:50,cat:'Dessert',name:'Vanilla Ice Cream Scoop',price:60}];
+const REVIEWS=[{n:'Aarav',s:5,t:'Quiet corner, strong Wi-Fi, perfect for exam prep.'},{n:'Sneha',s:4,t:'Rose Latte is a must try. Student discount is great!'}];
+const DISC=.15;
+/* mock API */
+function api(m,p,b){const t=new Date().toLocaleTimeString();
+ return new Promise(r=>setTimeout(()=>{const l=$('log');l.innerHTML+=`[${t}] ${m} ${p} → 200 OK${b?' '+JSON.stringify(b).slice(0,70):''}<br>`;l.scrollTop=l.scrollHeight;r(b)},120))}
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',2400)}
+function go(id){$(id).scrollIntoView({behavior:'smooth'})}
+const rs=s=>'₹'+Math.round(s);
+
+/* registration validation */
+const V={
+ fn:v=>v.trim().length>=3&&/^[A-Za-z .'-]+$/.test(v.trim())?'':'Enter your full name (letters only)',
+ em:v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())?'':'Enter a valid email address',
+ mb:v=>/^[6-9]\d{9}$/.test(v)?'':'Enter a valid 10-digit Indian mobile',
+ cr:v=>v?'':'Select a course',
+ id:v=>v.trim().length>=4?'':'Enter your college ID'};
+const map={fn:'e1',em:'e2',mb:'e3',cr:'e4',id:'e5'};
+let idOk=false,idName='';
+function check(show){let ok=true;const st={};
+ for(const k in V){const e=V[k]($(k).value);st[k]=!e;if(e)ok=false;if(show)$(map[k]).textContent=e}
+ $('c1').classList.toggle('ok',st.fn&&st.cr&&st.id);
+ $('c2').classList.toggle('ok',st.em);$('c3').classList.toggle('ok',st.mb);
+ $('c5').classList.toggle('ok',idOk);
+ if(show&&!idOk&&!$('e6').textContent)$('e6').textContent='Upload your student ID to get verified';
+ if(!idOk)ok=false;
+ $('c4').classList.toggle('ok',ok);return ok}
+$('rf').addEventListener('input',()=>check(false));
+$('idf').onchange=e=>{const f=e.target.files[0];idOk=false;$('e6').textContent='';$('pv').innerHTML='';$('drop').classList.remove('ok');
+ if(!f){check(false);return}
+ const okT=/^(image\/(png|jpeg|webp)|application\/pdf)$/.test(f.type);
+ if(!okT){$('e6').textContent='Only JPG, PNG or PDF files are accepted';e.target.value='';check(false);return}
+ if(f.size>5*1024*1024){$('e6').textContent='File is too large (max 5 MB)';e.target.value='';check(false);return}
+ if(f.size<8*1024){$('e6').textContent='File looks too small to be an ID card';e.target.value='';check(false);return}
+ const isImg=f.type.startsWith('image/'),url=isImg?URL.createObjectURL(f):'';
+ $('pv').innerHTML=(isImg?`<img src="${url}" alt="ID preview">`:'<span style="font-size:30px">📄</span>')+'<span><span class="spin"></span>Verifying your student ID…</span>';
+ const done=skip=>{if(isImg&&!skip&&!(im.width>=200&&im.height>=120)){$('pv').innerHTML='';$('e6').textContent='Image is too small or unclear. Upload a clearer photo.';e.target.value='';check(false);return}
+  setTimeout(()=>{idOk=true;idName=f.name;$('drop').classList.add('ok');$('dt').textContent='✅ '+f.name;
+   $('pv').querySelector('span:last-child').innerHTML='<b style="color:var(--ok)">✓ Student ID verified</b>';api('POST','/api/students/id-upload',{file:f.name.slice(0,30),size:f.size});check(false)},1800)};
+ const im=new Image();if(isImg){const fr=new FileReader();fr.onload=()=>{im.onload=()=>done(false);im.onerror=()=>done(true);im.src=fr.result;const pi=$('pv').querySelector('img');if(pi)pi.src=fr.result};fr.onerror=()=>done(true);fr.readAsDataURL(f)}else done()};
+$('sb').onclick=()=>{if(!check(true)){toast('Please fix the highlighted fields');return}
+ $('m1').textContent=$('fn').value;$('m2').textContent=$('em').value;$('m3').textContent='+91 '+$('mb').value;$('m4').textContent=$('cr').value;$('m5').textContent=$('id').value;$('m6').textContent=idName+' ✓ Verified';
+ $('cm').classList.add('on')};
+$('ed').onclick=()=>$('cm').classList.remove('on');
+$('ok').onclick=async()=>{student={name:$('fn').value.trim(),email:$('em').value,mobile:$('mb').value,course:$('cr').value,cid:$('id').value};
+ try{sessionStorage.setItem('bb_student',JSON.stringify(student))}catch(e){}
+ student.idFile=idName;const acc=getAcc().filter(a=>a.email.toLowerCase()!==student.email.toLowerCase());acc.push(student);saveAcc(acc);
+ $('cm').classList.remove('on');enter();await api('POST','/api/students/verify',{email:student.email,status:'verified'})};
+
+function enter(){$('lg').style.display='none';$('gate').style.display='none';$('site').style.display='block';scrollTo(0,0);
+ $('hi').textContent='Welcome, '+student.name.split(' ')[0]+'! Student discount of 15% is active.';
+ $('oname').value=student.name;$('rn').value=student.name.split(' ')[0];
+ $('mc').textContent=MENU.length;renderCats();renderMenu();renderSel();renderRev();sum();
+ api('GET','/api/menu');api('GET','/api/seats');initPages()}
+
+/* ===== multi-page features ===== */
+const NV=new Set(['Masala Omelette Pav','Chicken Club Sandwich','Chicken Wrap']);
+const isV=m=>!NV.has(m.name);
+const COMBOS=[{key:'c1',name:'Study Combo',desc:'Cold Coffee + Veg Grilled Sandwich',price:220,reg:250},{key:'c2',name:'Exam Night Combo',desc:'2 Masala Chai + Samosa Chaat + Brownie',price:210,reg:260},{key:'c3',name:'Brunch Combo',desc:'Avocado Toast + Hazelnut Latte',price:270,reg:310}];
+const ZONES=[{n:'Silent Zone',ic:'🤫',d:'Individual desks, no talking, power sockets'},{n:'Group Study Table',ic:'👥',d:'Tables for 2 to 6, whiteboard available'},{n:'Window Seats',ic:'🪟',d:'Natural light, charging points, chill vibe'}];
+const SLOTS=['8-10 AM','10 AM-12 PM','12-2 PM','2-4 PM','4-6 PM','6-8 PM','8-10 PM'];
+const EV=[{id:'e1',t:'Open Mic Night',off:2,time:'7:00 PM',ic:'🎤',d:'Poetry, stand-up or songs. Perform or just vibe. Free chai for performers.',p:0,go:42},
+{id:'e2',t:'Exam-Week Chai & Chill',off:3,time:'5:00-9:00 PM',ic:'📚',d:'Unlimited chai refills and study snacks while you revise.',p:99,go:58},
+{id:'e3',t:'Board Games Evening',off:5,time:'6:00 PM',ic:'🎲',d:'Uno, Catan, chess and more. Bring friends or make new ones.',p:0,go:27},
+{id:'e4',t:'Resume & LinkedIn Clinic',off:6,time:'4:00 PM',ic:'💼',d:'Quick feedback on your CV from working professionals.',p:0,go:34},
+{id:'e5',t:'Quiz Night: Trivia & Treats',off:8,time:'7:30 PM',ic:'🧠',d:'Teams of 4. Winners take home free coffee for a month.',p:50,go:61},
+{id:'e6',t:'Latte Art Workshop',off:10,time:'3:00 PM',ic:'☕',d:'Learn to pour hearts and rosettes with our head barista.',p:250,go:18}];
+let cart={},favs=[],books=[],rsvp=[],tip=0,coupon='',cur='home',mcat='All',vf='all',mq='',sz=0,sd=0,ss=-1;
+const sk=k=>k+'_'+(student?student.email.toLowerCase():'guest');
+const ld=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(sk(k)));return v==null?d:v}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(sk(k),JSON.stringify(v))}catch(e){}};
+const saveO=()=>sv('bb_orders',orders);
+const stat=o=>Date.now()>=o.ready?'Ready':'Preparing';
+const dateOf=d=>new Date(Date.now()+d*864e5).toLocaleDateString('en-CA');
+const nice=iso=>new Date(iso+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+const info=k=>{if(k[0]==='c'){const c=COMBOS.find(x=>x.key===k);return{name:c.name,price:c.price}}const m=MENU.find(x=>'m'+x.id===k);return{name:m.name,price:m.price}};
+function updCart(){const n=Object.values(cart).reduce((a,b)=>a+b,0);$('cc').textContent=n;$('cc').style.display=n?'inline-block':'none'}
+function show(p,anchor){cur=p;document.querySelectorAll('.pg').forEach(e=>e.classList.toggle('on',e.id==='pg-'+p));
+ document.querySelectorAll('.navl a').forEach(a=>a.classList.toggle('act',a.dataset.pg===p&&!a.dataset.a));
+ scrollTo(0,0);render(p);if(anchor)setTimeout(()=>go(anchor),60)}
+function render(p){({menu:renderMenuPg,cart:renderCart,orders:renderOrdersPg,study:renderStudy,events:renderEvents,favs:renderFavs,home:renderOrders})[p]()}
+document.querySelectorAll('.navl a').forEach(a=>a.onclick=e=>{e.preventDefault();show(a.dataset.pg,a.dataset.a)});
+
+const card=m=>`<div class="item"><button class="heart" data-f="${m.id}" aria-label="Favourite">${favs.includes(m.id)?'❤️':'🤍'}</button><small>${m.cat}</small><h4><i class="vd ${isV(m)?'v':'n'}"></i>${m.name}</h4><div class="p">${rs(m.price*(1-DISC))}<s>${rs(m.price)}</s></div><button class="btn" data-add="m${m.id}">Add to cart</button></div>`;
+
+/* menu page */
+function renderMenuPg(){
+ $('mcats').innerHTML=['All',...new Set(MENU.map(m=>m.cat))].map(x=>`<button class="cat ${x===mcat?'on':''}" data-mc="${x}">${x}</button>`).join('');
+ document.querySelectorAll('#vseg button').forEach(b=>b.classList.toggle('on',b.dataset.vf===vf));
+ $('combos').innerHTML=COMBOS.map(c=>`<div class="item combo"><small>Combo · save ₹${c.reg-c.price}</small><h4>${c.name}</h4><div class="desc">${c.desc}</div><div class="p">${rs(c.price*(1-DISC))}<s>${rs(c.reg)}</s></div><button class="btn" data-add="${c.key}">Add combo</button></div>`).join('');
+ const l=MENU.filter(m=>(mcat==='All'||m.cat===mcat)&&(vf==='all'||(vf==='v')===isV(m))&&m.name.toLowerCase().includes(mq));
+ $('mg2').innerHTML=l.length?l.map(card).join(''):'<div class="empty">No items match. Try another search.</div>';$('mn').textContent=l.length+' items'}
+$('ms').oninput=e=>{mq=e.target.value.toLowerCase().trim();renderMenuPg()};
+
+/* favourites */
+function renderFavs(){const l=MENU.filter(m=>favs.includes(m.id));
+ $('fl').innerHTML=l.length?l.map(card).join(''):'<div class="box"><div class="empty">No favourites yet.</div><div style="margin-top:12px"><button class="btn" data-go="menu">Browse menu</button></div></div>'}
+
+/* cart */
+function calc(){let sub=0,n=0;for(const k in cart){sub+=info(k).price*cart[k];n+=cart[k]}
+ const sdc=sub*DISC,after=sub-sdc;let cd=0,msg='';
+ if(coupon==='STUDY10')cd=after*.1;
+ else if(coupon==='EXAMWEEK'){if(sub>=300)cd=50;else msg='EXAMWEEK needs a cart of ₹300 or more'}
+ else if(coupon==='FIRSTBREW'){if(!orders.length)cd=40;else msg='FIRSTBREW is only for your first order'}
+ cd=Math.min(cd,after);const t=n?tip:0;
+ return{sub,n,sd:sdc,cd,msg,tip:t,total:Math.max(0,after-cd)+t}}
+function renderCart(){const ks=Object.keys(cart);
+ $('cl').innerHTML='<h2>Your Cart</h2>'+(ks.length?ks.map(k=>{const i=info(k);return `<div class="cl"><div><b>${i.name}</b><div class="desc">${rs(i.price*(1-DISC))} each (student price)</div></div><div class="qty"><button data-dec="${k}">−</button><b>${cart[k]}</b><button data-inc="${k}">+</button></div><b>${rs(i.price*cart[k]*(1-DISC))}</b></div>`}).join('')+'<div style="margin-top:14px"><button class="btn alt" data-go="menu">+ Add more items</button></div>':'<div class="empty">Your cart is empty.</div><div style="margin-top:12px"><button class="btn" data-go="menu">Browse menu</button></div>');
+ const c=calc();
+ $('tipc').innerHTML=[0,10,20,50].map(t=>`<button class="cat ${t===tip?'on':''}" data-tip="${t}">${t?'₹'+t:'No tip'}</button>`).join('');
+ $('cmsg').textContent=c.msg||(coupon&&c.cd>0?'✅ '+coupon+' applied':'');
+ $('cs').innerHTML=`<div><span>Subtotal (${c.n} items)</span><span>${rs(c.sub)}</span></div><div style="color:var(--pink)"><span>🎓 Student discount (15%)</span><span>−${rs(c.sd)}</span></div>`+(c.cd?`<div style="color:var(--pink)"><span>Coupon ${coupon}</span><span>−${rs(c.cd)}</span></div>`:'')+(c.tip?`<div><span>Tip</span><span>${rs(c.tip)}</span></div>`:'')+`<div class="t"><span>Total</span><span>${rs(c.total)}</span></div>`;
+ $('cplace').disabled=!c.n}
+$('capply').onclick=()=>{const v=$('cpn').value.trim().toUpperCase();coupon='';
+ if(v&&!['STUDY10','EXAMWEEK','FIRSTBREW'].includes(v)){renderCart();$('cmsg').textContent='Invalid coupon code';return}
+ coupon=v;renderCart()};
+$('cplace').onclick=async()=>{const c=calc();if(!c.n){toast('Your cart is empty');return}
+ const lines=Object.keys(cart).map(k=>({key:k,name:info(k).name,price:info(k).price,qty:cart[k]}));
+ const now=Date.now(),o={id:++nid,name:student.name,items:lines.map(l=>l.qty+'× '+l.name).join(', '),lines,note:$('cnote').value.trim(),sub:c.sub,disc:c.sd,coupon,cdisc:c.cd,tip:c.tip,total:c.total,time:now,ready:now+(60+c.n*15)*1000,status:'Preparing'};
+ orders.push(o);loyalty++;saveO();cart={};coupon='';tip=0;$('cpn').value='';$('cnote').value='';updCart();
+ await api('POST','/api/orders',{id:o.id,items:c.n,total:Math.round(c.total)});
+ toast(loyalty%10===0?'Order placed! 🎁 Free brownie on the house!':'Order #'+o.id+' placed!');show('orders')};
+
+/* orders page */
+function renderOrdersPg(){
+ const tot=orders.reduce((a,o)=>a+o.total,0),saved=orders.reduce((a,o)=>a+(o.disc||0)+(o.cdisc||0),0);
+ $('os').innerHTML=`<div class="stat"><b>${orders.length}</b><span>Orders</span></div><div class="stat"><b>${rs(tot)}</b><span>Spent</span></div><div class="stat"><b>${rs(saved)}</b><span>Saved 🎓</span></div><div class="stat"><b>${loyalty%10}/10</b><span>Free brownie</span></div>`;
+ $('ol').innerHTML=orders.length?orders.slice().reverse().map(o=>{const d=new Date(o.time||Date.now()).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+  return `<div class="ocard"><div class="h"><span><b>#${o.id}</b> · ${d}</span><span><span data-cd="${o.ready}" style="margin-right:8px;color:var(--muted)"></span><span class="st ${stat(o)}">${stat(o)}</span></span></div>
+  <div style="margin:6px 0">${o.items||(o.q+'× '+o.item)}${o.note?' <i>('+o.note+')</i>':''}</div>
+  <div><b>${rs(o.total)}</b> paid</div>
+  <details><summary>View bill</summary><div class="sum">${(o.lines||[]).map(l=>`<div><span>${l.qty}× ${l.name}</span><span>${rs(l.price*l.qty)}</span></div>`).join('')}<div><span>Subtotal</span><span>${rs(o.sub||o.total)}</span></div><div style="color:var(--pink)"><span>🎓 Student discount</span><span>−${rs(o.disc||0)}</span></div>${o.cdisc?`<div style="color:var(--pink)"><span>Coupon ${o.coupon}</span><span>−${rs(o.cdisc)}</span></div>`:''}${o.tip?`<div><span>Tip</span><span>${rs(o.tip)}</span></div>`:''}<div class="t"><span>Total</span><span>${rs(o.total)}</span></div></div></details>
+  ${o.lines?`<div style="margin-top:10px"><button class="btn alt sm" data-reorder="${o.id}">↻ Reorder</button></div>`:''}</div>`}).join('')
+  :'<div class="box"><div class="empty">No orders yet.</div><div style="margin-top:12px"><button class="btn" data-go="menu">Order something</button></div></div>';
+ tick()}
+function tick(){document.querySelectorAll('[data-cd]').forEach(e=>{const r=Math.ceil((+e.dataset.cd-Date.now())/1000),done=r<=0;
+ e.textContent=done?'Ready for pickup ✅':'Ready in '+Math.floor(r/60)+':'+String(r%60).padStart(2,'0');
+ const st=e.parentNode.querySelector('.st');st.textContent=done?'Ready':'Preparing';st.className='st '+(done?'Ready':'')})}
+setInterval(()=>{if(!student)return;tick();if(cur==='home')renderOrders()},1000);
+
+/* study corner */
+const full=(z,date,s)=>books.some(b=>b.z===z&&b.date===date&&b.s===s)||(z*3+ +date.slice(8)*5+s*7)%6===0;
+function renderStudy(){
+ $('zn').innerHTML=ZONES.map((z,i)=>`<div class="item zone ${i===sz?'sel':''}" data-zone="${i}"><div style="font-size:26px">${z.ic}</div><h4>${z.n}</h4><div class="desc">${z.d}</div></div>`).join('');
+ $('dseg').innerHTML=[0,1].map(d=>`<button class="${d===sd?'on':''}" data-day="${d}">${d?'Tomorrow':'Today'} · ${nice(dateOf(d))}</button>`).join('');
+ const date=dateOf(sd);
+ $('sl').innerHTML=SLOTS.map((t,i)=>`<button class="cat ${i===ss?'on':''}" data-slot="${i}" ${full(sz,date,i)?'disabled':''}>${t}</button>`).join('');
+ $('gsw').innerHTML=sz===1?'<label for="gs">People</label><select id="gs">'+[2,3,4,5,6].map(n=>`<option>${n}</option>`).join('')+'</select>':'';
+ $('mb2').innerHTML=books.length?books.slice().sort((a,b)=>a.date<b.date?-1:1).map(b=>`<div class="ord"><span>${ZONES[b.z].ic} <b>${ZONES[b.z].n}</b><br>${nice(b.date)} · ${SLOTS[b.s]}${b.g>1?' · '+b.g+' people':''}</span><button class="btn sm" style="background:var(--muted)" data-cancel="${b.id}">Cancel</button></div>`).join(''):'<div class="empty">No bookings yet.</div>'}
+$('sbook').onclick=async()=>{if(ss<0){toast('Pick a time slot first');return}
+ const date=dateOf(sd),g=sz===1&&$('gs')?+$('gs').value:1,pl={zone:ZONES[sz].n,date,slot:SLOTS[ss]};
+ books.push({id:Date.now(),z:sz,date,s:ss,g});sv('bb_books',books);
+ if(date===dateOf(0)){seats=Math.max(0,seats-1);$('seats').textContent=seats}
+ ss=-1;renderStudy();toast('Study spot booked! 📚');await api('POST','/api/study/book',pl)};
+
+/* events */
+function renderEvents(){$('el').innerHTML=EV.map(e=>{const on=rsvp.includes(e.id);
+ return `<div class="item"><div style="font-size:30px">${e.ic}</div><small>${nice(dateOf(e.off))} · ${e.time}</small><h4>${e.t}</h4><div class="desc">${e.d}</div><div class="p">${e.p?rs(e.p*(1-DISC))+'<s>'+rs(e.p)+'</s>':'Free'}</div><div class="desc">👥 ${e.go+(on?1:0)} going</div><button class="btn ${on?'':'alt'}" data-rsvp="${e.id}">${on?'✓ Going (tap to cancel)':'RSVP'}</button></div>`}).join('')}
+
+/* one click handler for all dynamic buttons */
+document.addEventListener('click',e=>{const t=e.target.closest('[data-f],[data-add],[data-inc],[data-dec],[data-vf],[data-mc],[data-go],[data-tip],[data-cp],[data-reorder],[data-zone],[data-day],[data-slot],[data-cancel],[data-rsvp]');if(!t)return;const d=t.dataset;
+ if('f' in d){const i=+d.f;favs=favs.includes(i)?favs.filter(x=>x!==i):[...favs,i];sv('bb_favs',favs);render(cur)}
+ else if('add' in d){cart[d.add]=(cart[d.add]||0)+1;updCart();toast('Added to cart 🛒')}
+ else if('inc' in d){cart[d.inc]++;updCart();renderCart()}
+ else if('dec' in d){cart[d.dec]--;if(cart[d.dec]<=0)delete cart[d.dec];updCart();renderCart()}
+ else if('vf' in d){vf=d.vf;renderMenuPg()}
+ else if('mc' in d){mcat=d.mc;renderMenuPg()}
+ else if('go' in d){show(d.go)}
+ else if('tip' in d){tip=+d.tip;renderCart()}
+ else if('cp' in d){$('cpn').value=d.cp;$('capply').click()}
+ else if('reorder' in d){const o=orders.find(x=>x.id==d.reorder);if(o){o.lines.forEach(l=>cart[l.key]=(cart[l.key]||0)+l.qty);updCart();toast('Items added to cart');show('cart')}}
+ else if('zone' in d){sz=+d.zone;ss=-1;renderStudy()}
+ else if('day' in d){sd=+d.day;ss=-1;renderStudy()}
+ else if('slot' in d){ss=+d.slot;renderStudy()}
+ else if('cancel' in d){const b=books.find(x=>x.id==d.cancel);books=books.filter(x=>x.id!=d.cancel);sv('bb_books',books);if(b&&b.date===dateOf(0)){seats=Math.min(40,seats+1);$('seats').textContent=seats}renderStudy();toast('Booking cancelled')}
+ else if('rsvp' in d){rsvp=rsvp.includes(d.rsvp)?rsvp.filter(x=>x!==d.rsvp):[...rsvp,d.rsvp];sv('bb_rsvp',rsvp);renderEvents();toast(rsvp.includes(d.rsvp)?'RSVP confirmed 🎉':'RSVP cancelled')}
+});
+
+function initPages(){orders=ld('bb_orders',[]);loyalty=orders.length;nid=Math.max(100,...orders.map(o=>o.id));
+ favs=ld('bb_favs',[]);books=ld('bb_books',[]).filter(b=>b.date>=dateOf(0));rsvp=ld('bb_rsvp',[]);
+ cart={};coupon='';tip=0;sz=0;sd=0;ss=-1;seats=Math.max(0,40-books.filter(b=>b.date===dateOf(0)).length);$('seats').textContent=seats;updCart();show('home')}
+
+/* accounts & login */
+function getAcc(){try{return JSON.parse(localStorage.getItem('bb_accounts')||'[]')}catch(e){return[]}}
+function saveAcc(a){try{localStorage.setItem('bb_accounts',JSON.stringify(a))}catch(e){}}
+function showPage(w){$('gate').style.display=w==='reg'?'block':'none';$('lg').style.display=w==='login'?'block':'none';$('site').style.display=w==='site'?'block':'none';scrollTo(0,0)}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showPage(b.dataset.p));
+$('toLogin').onclick=()=>showPage('login');$('toReg').onclick=()=>showPage('reg');
+$('lbtn').onclick=async()=>{const e=$('lem').value.trim().toLowerCase(),m=$('lmb').value.trim();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)||!/^[6-9]\d{9}$/.test(m)){$('le').textContent='Enter a valid email and 10-digit mobile number';return}
+ const a=getAcc().find(x=>x.email.toLowerCase()===e&&x.mobile===m);
+ if(!a){$('le').textContent='No verified student account found with these details. Please register first.';return}
+ $('le').textContent='';student=a;try{sessionStorage.setItem('bb_student',JSON.stringify(a))}catch(x){}
+ enter();toast('Welcome back, '+a.name.split(' ')[0]+'!');await api('POST','/api/auth/login',{email:a.email})};
+$('lgout').onclick=()=>{student=null;orders=[];loyalty=0;renderOrders();try{sessionStorage.removeItem('bb_student')}catch(e){}$('lem').value='';$('lmb').value='';$('lg').style.display='block';showPage('login')};
+try{const s=sessionStorage.getItem('bb_student');if(s){student=JSON.parse(s);enter()}}catch(e){}
+
+/* menu */
+function renderCats(){const c=['All',...new Set(MENU.map(m=>m.cat))];
+ $('cats').innerHTML=c.map(x=>`<button class="cat ${x===cat?'on':''}" data-c="${x}">${x}</button>`).join('');
+ $('cats').querySelectorAll('button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderCats();renderMenu()})}
+function renderMenu(){$('mg').innerHTML=MENU.filter(m=>cat==='All'||m.cat===cat).map(m=>
+ `<div class="item"><small>${m.cat}</small><h4>${m.name}</h4><div class="p">${rs(m.price*(1-DISC))}<s>${rs(m.price)}</s></div><button class="btn" data-i="${m.id}">Order this</button></div>`).join('');
+ $('mg').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('oi').value=b.dataset.i;sum();go('order')})}
+function renderSel(){$('oi').innerHTML=MENU.map(m=>`<option value="${m.id}">${m.name} — ${rs(m.price)}</option>`).join('')}
+function sum(){const m=MENU.find(x=>x.id==$('oi').value),q=Math.max(1,Math.min(10,+$('oq').value||1));if(!m)return;
+ const sub=m.price*q,d=sub*DISC;
+ $('sum').innerHTML=`<div><span>Subtotal</span><span>${rs(sub)}</span></div><div style="color:var(--pink)"><span>🎓 Student discount (15%)</span><span>−${rs(d)}</span></div><div class="t"><span>Total</span><span>${rs(sub-d)}</span></div>`}
+$('oi').onchange=sum;$('oq').oninput=sum;
+
+/* orders */
+function renderOrders(){$('lo').innerHTML=orders.length?orders.slice().reverse().slice(0,5).map(o=>`<div class="ord"><span><b>#${o.id}</b> ${o.name} · ${o.items||(o.q+'× '+o.item)}${o.note?' <i>('+o.note+')</i>':''}</span><span><b>${rs(o.total)}</b> <span class="st ${stat(o)}">${stat(o)}</span></span></div>`).join(''):'<div class="empty">No orders yet. Place one!</div>';
+ $('lp').textContent=loyalty%10}
+$('po').onclick=async()=>{const m=MENU.find(x=>x.id==$('oi').value),q=Math.max(1,Math.min(10,+$('oq').value||1)),n=$('oname').value.trim();
+ if(!n){toast('Enter your name');return}
+ const free=(loyalty+1)%10===0,total=m.price*q*(1-DISC);
+ const o={id:++nid,name:n,item:m.name,q,note:$('on').value.trim(),total,status:'Preparing',lines:[{key:'m'+m.id,name:m.name,price:m.price,qty:q}],sub:m.price*q,disc:m.price*q*DISC,coupon:'',cdisc:0,tip:0,time:Date.now(),ready:Date.now()+6000};
+ orders.push(o);loyalty++;saveO();renderOrders();
+ await api('POST','/api/orders',{id:o.id,item:m.name,qty:q,total:Math.round(total)});
+ toast(free?'Order placed! 🎁 Free brownie on the house!':'Order #'+o.id+' placed!');
+ setTimeout(async()=>{o.status='Ready';renderOrders();await api('PATCH','/api/orders/'+o.id,{status:'Ready'})},6000)};
+
+/* seats */
+$('bk').onclick=async()=>{if(seats<=0){toast('Sorry, cafe is full');return}seats--;$('seats').textContent=seats;
+ await api('POST','/api/seats/book',{student:student.cid,seats_left:seats});toast('Study seat booked for you (2 hrs)')};
+
+/* reviews */
+function renderRev(){$('rl').innerHTML=REVIEWS.map(r=>`<div class="rev"><b>${r.n}</b> <span class="stars">${'★'.repeat(r.s)}${'☆'.repeat(5-r.s)}</span><br>${r.t}</div>`).join('')}
+$('pr').onclick=async()=>{const t=$('rt').value.trim();if(!t){toast('Write a comment first');return}
+ const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ REVIEWS.unshift({n:esc($('rn').value||'Guest'),s:+$('rs').value,t:esc(t)});$('rt').value='';renderRev();await api('POST','/api/reviews',{rating:+$('rs').value});toast('Thanks for your review!')};
+
+/* theme */
+$('tg').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
+if(!student&&getAcc().length)showPage('login');
+check(false);
+</script></body></html>
